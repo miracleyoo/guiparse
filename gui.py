@@ -12,6 +12,7 @@ parser.add_argument(
 parser.add_argument(
     '--root_path',
     type=str,
+    is_path=True,
     default="./Data/Mixer_Videos/",
     help='The root path of recorded videos.')
 
@@ -39,6 +40,11 @@ parser.add_argument(
     type=int,
     default='2',
     help='The number of pages you scrolls down.')
+
+parser.add_argument(
+    '--quality',
+    action='store_true',
+    help='The quality of recorded videos.')
 
 root = tk.Tk()
 #creation of an instance
