@@ -8,7 +8,15 @@ Give me a python script with argparse, give you back a nice GUI with original fu
 
 所有的布局、label、按键都会自动根据原argparse的传入参数进行设计和布局。按下Start按键后会把填写好的表单存入`./gui/temp/args.pkl`文件中，并自动开始您原来的`main.py`文件，在main中读取变量值。一切都是自动的。
 
-All of the layout, labels, buttons and bindings will be automatically finished. When you press start button, the input form will be saved into file `./gui/temp/args.pkl`, and automatically start your original main.py file with those values read into main.
+不同的变量类型对应着不同的GUI元素，且你无需担心添加这些argument的顺序，guiparse会替你做所有的这些事情。特别提醒：如果你的一个str类型的argument是一个文件路径，你可以在add_argument的时候加上一个参数`is_path=True`，它会为你生成一个open按钮，为你打开一个文件选择窗口来选择文件路径。当你使用`action=store_true` 参数时，输入框会变成一个二选一选项，更适合您的输入。 
+
+每一项输入框后面都会有一个小问号，将鼠标放上去半秒会显示相应帮助。
+
+All of the layout, labels, buttons and bindings will be automatically finished. When you press start button, the input form will be saved into file `./gui/temp/args.pkl`, and automatically start your original main.py file with those values read into main. 
+
+Different type will generate different gui components and don't worry about the order, guiparse will do everything for you. Specially mention: if your string type argument is a file path, please add a `is_path=True` when add_argument, it will allow you to use a pop-up file selector to choose your file path. When you are using `action=store_true` parameter, the input text box will be turned into two radio buttons, which is better for the situation. 
+
+Following each input text box is a question mark image, hover your mouse on it for 0.5s, you will see the help for this item.
 
 # 文件结构/Structure
 
@@ -94,4 +102,5 @@ if __name__ == "__main__":
 That's all! Just simply remove the argparse part and replace it by a pickle load. Also remember to import pickle and everything from guiparse. Don't worry about namespace, you can only import some limited names from guiparse! 
 
 **OK, ALL SET!**
+
 Type `python gui.py` to start your gui journey!
