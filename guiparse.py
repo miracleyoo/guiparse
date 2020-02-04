@@ -215,14 +215,18 @@ class Window(tk.Frame):
 
             # -- Create Label, Input Entry (and Open Button) -- #
             if self.parser.arguments[arg_name].type == str:
-                if self.parser.arguments[arg_name].is_path:
+                if self.parser.arguments[arg_name].is_path or self.parser.arguments[arg_name].is_dir:
                     self.value_items[arg_name] = tk.StringVar()
                     self.value_items[arg_name].set(
                         "" if self.parser.arguments[arg_name].default == None else self.parser.arguments[arg_name].default)
                     self.input_items[arg_name] = self.make_element(
                         tk.Entry, 160, 2+30*i, 25, 450, textvariable=self.value_items[arg_name], width=200)
-                    button = self.make_element(tk.Button, 615, 2+30*i, 25, 45, text="Open", command=partial(
-                        self.show_file_selector, self.value_items.items()))
+                    if self.parser.arguments[arg_name].is_path:
+                        button = self.make_element(tk.Button, 615, 2+30*i, 25, 45, text="Open", command=partial(
+                            self.show_file_selector, self.value_items, arg_name))
+                    else:
+                        button = self.make_element(tk.Button, 615, 2+30*i, 25, 45, text="Open", command=partial(
+                            self.show_dir_selector, self.value_items, arg_name))
                 else:
                     self.value_items[arg_name] = tk.StringVar()
                     self.value_items[arg_name].set(
@@ -292,11 +296,16 @@ class Window(tk.Frame):
         return label
 
     # Show a file selector and pass the selected path to value_item
-    def show_file_selector(self, value_item):
-        file_path = filedialog.askopenfilename(initialdir=os.getcwd(
-        ), title="Select file", filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
+    def show_file_selector(self, value_items, arg_name):
+        file_path = filedialog.askopenfilename(initialdir=os.getcwd(),
+            title="Select file", filetypes=(("jpeg files", "*.jpg"), ("all files", "*.*")))
         if file_path is not None and file_path != "":
-            value_item.set(file_path)
+            value_items[arg_name].set(file_path)
+    
+    def show_dir_selector(self, value_items, arg_name):
+        dir_path = filedialog.askdirectory(initialdir=os.getcwd(), title="Select directory")
+        if dir_path is not None and dir_path != "":
+            value_items[arg_name].set(dir_path)
 
     # Exit the client
     def client_exit(self):
@@ -313,12 +322,13 @@ class argInfoPack():
     """
     The information pack for a certain entry.
     """
-    def __init__(self, name, type, default=None, action=None, is_path=False, help=None):
+    def __init__(self, name, type, default=None, action=None, is_path=False, is_dir=False, help=None):
         super().__init__()
         self.name = name
         self.type = type
         self.default = default
         self.is_path = is_path
+        self.is_dir = is_dir
         self.help = help
 
 class argStation():
@@ -331,7 +341,7 @@ class argStation():
         self.title = title
     
     # Add one argument to arguments.
-    def add_argument(self, *name, type=str, default=None, action=None, is_path=False, help="No help message for this item."):
+    def add_argument(self, *name, type=str, default=None, action=None, is_path=False, is_dir=False, help="No help message for this item."):
         if len(name)==0:
             print("Please at least input a name for this argument!")
         elif len(name)==1:
@@ -347,13 +357,13 @@ class argStation():
                     name=n.strip()
                     break
         if action=="store_true": type=bool
-        self.arguments[name]=argInfoPack(name=name,type=type,default=default, action=action, is_path=is_path, help=help)
+        self.arguments[name]=argInfoPack(name=name,type=type,default=default, action=action, is_path=is_path, is_dir=is_dir, help=help)
     
     # Sort the argument dictionary by its type and action.
     def sort(self):
         def compute_order(arg):
             if arg.type == str:
-                if arg.is_path:
+                if arg.is_path or arg.is_dir:
                     return 0
                 else:
                     return 1
